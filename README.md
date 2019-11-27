@@ -68,6 +68,20 @@ export OM_SKIP_SSL_VALIDATION=true
 EOF
 ```
 
+__Before__ continuing, open the `.env` file and update the `CHANGE_ME` values accordingly.
+
+Ensure these variables get set into the shell every time the ubuntu user connects to the jumpbox:
+
+```bash
+echo "source ~/.env" >> ~/.bashrc
+```
+
+Load the variables into your shell with the source command so we can use them immediately:
+
+```bash
+source ~/.env
+```
+
 ## Update an existing Cloud DNS Zone
 
 **Note:** A Cloud DNS Zone for `PCF_DOMAIN_NAME` above should already exist.  You will need to add an `NS` recordset to your top-level Cloud DNS zone.
@@ -96,20 +110,6 @@ gcloud dns record-sets transaction add --zone="my-zone-name" \
 ```
 > You will need to adjust both the `--zone` value and the final parameter value of each `gcloud dns` command above according to your configuration needs
 
-__Before__ continuing, open the `.env` file and update the `CHANGE_ME` values accordingly.
-
-Ensure these variables get set into the shell every time the ubuntu user connects to the jumpbox:
-
-```bash
-echo "source ~/.env" >> ~/.bashrc
-```
-
-Load the variables into your shell with the source command so we can use them immediately:
-
-```bash
-source ~/.env
-```
-
 ## Prepare jumpbox and generate service account
 
 ```bash
@@ -127,7 +127,7 @@ sudo apt install --yes ruby-dev
 ```bash
 cd ~
 
-FLY_VERSION=5.7.1
+FLY_VERSION=5.6.0
 wget -O fly.tgz https://github.com/concourse/concourse/releases/download/v${FLY_VERSION}/fly-${FLY_VERSION}-linux-amd64.tgz && \
   tar -xvf fly.tgz && \
   sudo mv fly /usr/local/bin && \
