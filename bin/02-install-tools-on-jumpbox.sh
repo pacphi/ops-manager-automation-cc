@@ -10,7 +10,7 @@ sudo apt install --yes ruby-dev
 
 cd ~
 
-FLY_VERSION=5.7.1
+FLY_VERSION=5.6.0
 wget -O fly.tgz https://github.com/concourse/concourse/releases/download/v${FLY_VERSION}/fly-${FLY_VERSION}-linux-amd64.tgz && \
   tar -xvf fly.tgz && \
   sudo mv fly /usr/local/bin && \

@@ -48,7 +48,7 @@ gcloud compute ssh ubuntu@jbox-cc \
 gcloud auth login --quiet
 ```
 
-All following commands should be executed from the jumpbox unless otherwsie instructed.
+All following commands should be executed from the jumpbox unless otherwise instructed.
 
 ## Prepare your environment file
 
@@ -67,6 +67,34 @@ export OM_DECRYPTION_PASSPHRASE=\${OM_PASSWORD}
 export OM_SKIP_SSL_VALIDATION=true
 EOF
 ```
+
+## Update an existing Cloud DNS Zone
+
+**Note:** A Cloud DNS Zone for `PCF_DOMAIN_NAME` above should already exist.  You will need to add an `NS` recordset to your top-level Cloud DNS zone.
+> //TODO Adjust Terraform to add an NS record into existing Cloud DNS zone
+
+E.g.
+
+```bash
+gcloud dns record-sets transaction add --zone="my-zone-name" \
+    --name="${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}." \
+    --type=NS \
+    --ttl=60 "ns-cloud-b1.googledomains.com"
+
+gcloud dns record-sets transaction add --zone="my-zone-name" \
+    --name="${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}." \
+    --type=NS \
+    --ttl=60 "ns-cloud-b2.googledomains.com"
+gcloud dns record-sets transaction add --zone="my-zone-name" \
+    --name="${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}." \
+    --type=NS \
+    --ttl=60 "ns-cloud-b3.googledomains.com"
+gcloud dns record-sets transaction add --zone="my-zone-name" \
+    --name="${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}." \
+    --type=NS \
+    --ttl=60 "ns-cloud-b4.googledomains.com"
+```
+> You will need to adjust both the `--zone` value and the final parameter value of each `gcloud dns` command above according to your configuration needs
 
 __Before__ continuing, open the `.env` file and update the `CHANGE_ME` values accordingly.
 
@@ -141,6 +169,16 @@ TGCP_VERSION=0.95.0
 wget -O terraforming-gcp.tar.gz https://github.com/pivotal-cf/terraforming-gcp/releases/download/v${TGCP_VERSION}/terraforming-gcp-v${TGCP_VERSION}.tar.gz && \
   tar -zxvf terraforming-gcp.tar.gz && \
   rm terraforming-gcp.tar.gz
+
+pivnet login --api-token="${PIVNET_UAA_REFRESH_TOKEN}" && \
+  pivnet download-product-files --product-slug='pivotal-container-service' --release-version='1.6.0' --product-file-id=528557 && \
+  mv pks-linux-amd64-1.6.0-build.225 pks && \
+  chmod +x pks && \
+  sudo mv pks /usr/local/bin
+
+curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl && \
+  chmod +x kubectl && \
+  sudo mv kubectl /usr/local/bin
 ```
 
 ```bash
@@ -241,6 +279,7 @@ We use Control Tower to install Concourse, as follows:
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
   control-tower deploy \
+    --namespace "$(uuidgen)" \
     --region us-west1 \
     --iaas gcp \
     --workers 3 \
@@ -252,24 +291,31 @@ This will take about 20 mins to complete.
 ## Persist a few credentials
 
 ```bash
+NAMESPACE=$(uuidgen)
 INFO=$(GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
   control-tower info \
+    --namespace "${NAMESPACE}" \
     --region us-west1 \
     --iaas gcp \
     --json \
     ${PCF_SUBDOMAIN_NAME}
 )
 
-echo "CC_ADMIN_PASSWD=$(echo ${INFO} | jq --raw-output .config.concourse_password)" >> ~/.env
-echo "CREDHUB_CA_CERT='$(echo ${INFO} | jq --raw-output .config.credhub_ca_cert)'" >> ~/.env
-echo "CREDHUB_CLIENT=credhub_admin" >> ~/.env
-echo "CREDHUB_SECRET=$(echo ${INFO} | jq --raw-output .config.credhub_admin_client_secret)" >> ~/.env
-echo "CREDHUB_SERVER=$(echo ${INFO} | jq --raw-output .config.credhub_url)" >> ~/.env
-echo 'eval "$(GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
-  control-tower info \
-    --region us-west1 \
-    --iaas gcp \
-    --env ${PCF_SUBDOMAIN_NAME})"' >> ~/.env
+V_CC_ADMIN_PASSWD=$(echo "${INFO}" | jq --raw-output .config.concourse_password)
+V_CREDHUB_CA_CERT=$(echo "${INFO}" | jq --raw-output .config.credhub_ca_cert)
+V_CREDHUB_CLIENT=credhub_admin
+V_CREDHUB_SECRET=$(echo "${INFO}" | jq --raw-output .config.credhub_admin_client_secret)
+V_CREDHUB_SERVER=$(echo "${INFO}" | jq --raw-output .config.credhub_url)
+V_GAC="eval $(GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json control-tower info --namespace ${NAMESPACE} --region us-west1 --iaas gcp --env ${PCF_SUBDOMAIN_NAME})"
+
+cat >> ~/.env << EOF
+CC_ADMIN_PASSWD=${V_CC_ADMIN_PASSWD}
+CREDHUB_CA_CERT="${V_CREDHUB_CA_CERT}"
+CREDHUB_CLIENT=${V_CREDHUB_CLIENT}
+CREDHUB_SECRET=${V_CREDHUB_SECRET}
+CREDHUB_SERVER=${V_CREDHUB_SERVER}
+${V_GAC}
+EOF
 
 source ~/.env
 ```

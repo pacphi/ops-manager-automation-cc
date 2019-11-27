@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+source ~/.env
 
 cat > ~/private.yml << EOF
 ---
