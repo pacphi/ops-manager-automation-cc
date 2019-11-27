@@ -33,7 +33,7 @@ gcloud compute instances create "jbox-cc" \
   --boot-disk-size "200" \
   --machine-type=g1-small \
   --project "${GCP_PROJECT_ID}" \
-  --zone "us-central1-a"
+  --zone "us-west1-a"
 ```
 
 ## Move to the jumpbox and log in to GCP
@@ -41,9 +41,9 @@ gcloud compute instances create "jbox-cc" \
 ```bash
 gcloud compute ssh ubuntu@jbox-cc \
   --project "${GCP_PROJECT_ID}" \
-  --zone "us-central1-a"
+  --zone "us-west1-a"
 ```
-  
+
 ```bash
 gcloud auth login --quiet
 ```
@@ -55,10 +55,10 @@ All following commands should be executed from the jumpbox unless otherwsie inst
 ```bash
 cat > ~/.env << EOF
 # *** your environment-specific variables will go here ***
-PIVNET_UAA_REFRESH_TOKEN=CHANGE_ME_PIVNET_UAA_REFRESH_TOKEN  # e.g. xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-r
-PCF_DOMAIN_NAME=CHANGE_ME_DOMAIN_NAME                        # e.g. "mydomain.com", "pal.pivotal.io", "pivotaledu.io", etc.
-PCF_SUBDOMAIN_NAME=CHANGE_ME_SUBDOMAIN_NAME                  # e.g. "mypks", "mypas", "cls66env99", "maroon", etc.
-GITHUB_PUBLIC_REPO=CHANGE_ME_GITHUB_PUBLIC_REPO              # e.g. https://github.com/amcginlay/ops-manager-automation-cc.git
+export PIVNET_UAA_REFRESH_TOKEN=CHANGE_ME_PIVNET_UAA_REFRESH_TOKEN  # e.g. xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx-r
+export PCF_DOMAIN_NAME=CHANGE_ME_DOMAIN_NAME                        # e.g. "mydomain.com", "pal.pivotal.io", "pivotaledu.io", etc.
+export PCF_SUBDOMAIN_NAME=CHANGE_ME_SUBDOMAIN_NAME                  # e.g. "pks", "pas", "cls66env99", "maroon", etc.
+export GITHUB_PUBLIC_REPO=CHANGE_ME_GITHUB_PUBLIC_REPO              # e.g. https://github.com/pacphi/ops-manager-automation-cc.git
 
 export OM_TARGET=https://pcf.\${PCF_SUBDOMAIN_NAME}.\${PCF_DOMAIN_NAME}
 export OM_USERNAME=admin
@@ -99,34 +99,34 @@ sudo apt install --yes ruby-dev
 ```bash
 cd ~
 
-FLY_VERSION=5.0.0
+FLY_VERSION=5.7.1
 wget -O fly.tgz https://github.com/concourse/concourse/releases/download/v${FLY_VERSION}/fly-${FLY_VERSION}-linux-amd64.tgz && \
   tar -xvf fly.tgz && \
   sudo mv fly /usr/local/bin && \
   rm fly.tgz
-  
-CT_VERSION=0.3.0
+
+CT_VERSION=0.8.3
 wget -O control-tower https://github.com/EngineerBetter/control-tower/releases/download/${CT_VERSION}/control-tower-linux-amd64 && \
   chmod +x control-tower && \
   sudo mv control-tower /usr/local/bin/
 
-OM_VERSION=0.51.0
-wget -O om https://github.com/pivotal-cf/om/releases/download/${OM_VERSION}/om-linux && \
+OM_VERSION=4.3.0
+wget -O om https://github.com/pivotal-cf/om/releases/download/${OM_VERSION}/om-linux-${OM_VERSION} && \
   chmod +x om && \
   sudo mv om /usr/local/bin/
 
-PN_VERSION=0.0.55
-wget -O pivnet https://github.com/pivotal-cf/pivnet-cli/releases/download/v${PN_VERSION}/pivnet-linux-amd64-${PN_VERSION} && \
+PIVNET_VERSION=0.0.74
+wget -O pivnet https://github.com/pivotal-cf/pivnet-cli/releases/download/v${PIVNET_VERSION}/pivnet-linux-amd64-${PIVNET_VERSION} && \
   chmod +x pivnet && \
   sudo mv pivnet /usr/local/bin/
 
-BOSH_VERSION=5.4.0
+BOSH_VERSION=6.1.1
 wget -O bosh https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_VERSION}-linux-amd64 && \
   chmod +x bosh && \
   sudo mv bosh /usr/local/bin/
-  
-CHUB_VERSION=2.2.1
-wget -O credhub.tgz https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/${CHUB_VERSION}/credhub-linux-${CHUB_VERSION}.tgz && \
+
+CREDHUB_VERSION=2.6.1
+wget -O credhub.tgz https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/${CREDHUB_VERSION}/credhub-linux-${CREDHUB_VERSION}.tgz && \
   tar -xvf credhub.tgz && \
   sudo mv credhub /usr/local/bin && \
   rm credhub.tgz
@@ -136,8 +136,8 @@ wget -O terraform.zip https://releases.hashicorp.com/terraform/${TF_VERSION}/ter
   unzip terraform.zip && \
   sudo mv terraform /usr/local/bin && \
   rm terraform.zip
-  
-TGCP_VERSION=0.74.0
+
+TGCP_VERSION=0.95.0
 wget -O terraforming-gcp.tar.gz https://github.com/pivotal-cf/terraforming-gcp/releases/download/v${TGCP_VERSION}/terraforming-gcp-v${TGCP_VERSION}.tar.gz && \
   tar -zxvf terraforming-gcp.tar.gz && \
   rm terraforming-gcp.tar.gz
@@ -154,6 +154,8 @@ cd ~
 gcloud iam service-accounts keys create 'gcp_credentials.json' \
   --iam-account "p-service@$(gcloud config get-value core/project).iam.gserviceaccount.com"
 ```
+
+> **Shortcut:** Wait until you've cloned this repository on your jumpbox.  The above are encapsulated and located in the `bin` directory and the scripts are named `02-install-tools-on-jumpbox.sh` and `03-prepare-service-account.sh`.  Make sure you execute these!
 
 ## Clone this repo
 
@@ -177,8 +179,8 @@ DOMAIN=${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME} ~/ops-manager-automation-cc/bin/
 cat > ~/terraform.tfvars <<-EOF
 dns_suffix             = "${PCF_DOMAIN_NAME}"
 env_name               = "${PCF_SUBDOMAIN_NAME}"
-region                 = "us-central1"
-zones                  = ["us-central1-b", "us-central1-a", "us-central1-c"]
+region                 = "us-west1"
+zones                  = ["us-west1-b", "us-west1-a", "us-west1-c"]
 project                = "$(gcloud config get-value core/project)"
 opsman_image_url       = ""
 opsman_vm              = 0
@@ -239,7 +241,7 @@ We use Control Tower to install Concourse, as follows:
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
   control-tower deploy \
-    --region us-central1 \
+    --region us-west1 \
     --iaas gcp \
     --workers 3 \
     ${PCF_SUBDOMAIN_NAME}
@@ -252,7 +254,7 @@ This will take about 20 mins to complete.
 ```bash
 INFO=$(GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
   control-tower info \
-    --region us-central1 \
+    --region us-west1 \
     --iaas gcp \
     --json \
     ${PCF_SUBDOMAIN_NAME}
@@ -265,7 +267,7 @@ echo "CREDHUB_SECRET=$(echo ${INFO} | jq --raw-output .config.credhub_admin_clie
 echo "CREDHUB_SERVER=$(echo ${INFO} | jq --raw-output .config.credhub_url)" >> ~/.env
 echo 'eval "$(GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
   control-tower info \
-    --region us-central1 \
+    --region us-west1 \
     --iaas gcp \
     --env ${PCF_SUBDOMAIN_NAME})"' >> ~/.env
 
@@ -299,7 +301,7 @@ fly -t control-tower-${PCF_SUBDOMAIN_NAME} login --insecure --username admin --p
 ## Set up dedicated GCS bucket for downloads
 
 ```bash
-gsutil mb -c regional -l us-central1 gs://${PCF_SUBDOMAIN_NAME}-concourse-resources
+gsutil mb -c regional -l us-west1 gs://${PCF_SUBDOMAIN_NAME}-concourse-resources
 gsutil versioning set on gs://${PCF_SUBDOMAIN_NAME}-concourse-resources
 ```
 
@@ -394,7 +396,7 @@ om delete-installation
 ### Delete the Ops Manager VM
 
 ```bash
-gcloud compute instances delete "ops-manager-vm" --zone "us-central1-a" --quiet
+gcloud compute instances delete "ops-manager-vm" --zone "us-west1-a" --quiet
 ```
 
 ### Unwind the remaining PCF infrastructure
@@ -418,7 +420,7 @@ terraform destroy --auto-approve
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
   control-tower destroy \
-    --region us-central1 \
+    --region us-west1 \
     --iaas gcp \
     ${PCF_SUBDOMAIN_NAME}
 ```
