@@ -5,7 +5,8 @@
 sudo apt update --yes && \
 sudo apt install --yes jq && \
 sudo apt install --yes build-essential && \
-sudo apt install --yes ruby-dev
+sudo apt install --yes ruby-dev && \
+sudo gem install cf-uaac
 
 
 cd ~

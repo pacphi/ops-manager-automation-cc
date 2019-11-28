@@ -129,7 +129,8 @@ gcloud services enable sqladmin.googleapis.com --async
 sudo apt update --yes && \
 sudo apt install --yes jq && \
 sudo apt install --yes build-essential && \
-sudo apt install --yes ruby-dev
+sudo apt install --yes ruby-dev && \
+sudo gem install cf-uaac
 ```
 
 ```bash
@@ -462,7 +463,7 @@ cd ~/terraforming/terraforming-pas
 terraform destroy --auto-approve
 ```
 
-... or, if you're targetting PKS
+... or, if you're targeting PKS
 
 ```bash
 cd ~/terraforming/terraforming-pks
