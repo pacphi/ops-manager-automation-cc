@@ -1,10 +1,12 @@
-# ops-manager-automation-cc
+# ops-manager-automation-cc (fork)
 
-## What is this?
+## What will you find here?
 
-The following steps use [Control Tower](https://github.com/EngineerBetter/control-tower) to build a [Concourse](https://concourse-ci.org/) instance on [Google Cloud Platform](https://cloud.google.com/), then uses a combination of [GCS](https://cloud.google.com/storage/) buckets, [Credhub](https://docs.cloudfoundry.org/credhub/), a suite of [Platform Automation](http://docs.pivotal.io/platform-automation) tools and a single Concourse pipeline to deploy (and upgrade) the entire OpsMan and PCF product stack directly from the [Pivotal Network](https://network.pivotal.io).
+Infrastructure-as-code.
 
-The pipelines currently support [Pivotal Container Service](https://pivotal.io/platform/pivotal-container-service) and [Pivotal Application Service](https://pivotal.io/platform/pivotal-application-service) with related products.
+This repository employs [Control Tower](https://github.com/EngineerBetter/control-tower) to build a [Concourse](https://concourse-ci.org/) instance on [Google Cloud Platform](https://cloud.google.com/), then uses a combination of [GCS](https://cloud.google.com/storage/) buckets, [Credhub](https://docs.cloudfoundry.org/credhub/), a suite of [Platform Automation](http://docs.pivotal.io/platform-automation) tools and a single Concourse pipeline to deploy (and upgrade) an Operations Manager.  Not only that but you can choose to install and configure an assortment of product tiles that offer a complement of commercial and industrial capabilities from the Cloud Foundry eco-system sourced from the [Pivotal Network](https://network.pivotal.io).
+
+The pipelines currently support [Pivotal Container Service](https://pivotal.io/platform/pivotal-container-service) and [Pivotal Application Service](https://pivotal.io/platform/pivotal-application-service) with a curated complement of related products.
 
 ## Fork this repository
 
@@ -16,9 +18,15 @@ I recommend forking this repository so you can:
 ## Recycling GCP projects
 
 If you wish to re-use an existing GCP project for this exercise, it is often useful to clean up any existing resources beforehand.
-For guidance, follow [these instructions](https://github.com/amcginlay/gcp-cleanup).
+For guidance, follow [these instructions](https://github.com/amcginlay/gcp-cleanup). You might also want to take a look at [leftovers](https://github.com/genevieve/leftovers).
+
+## For the impatient
+
+If you don't want to spend time following step-by-step instructions, you might want to peruse the `*.sh` scripts in the root of this repository and in the `bin` directory.  These are a work in progress and the goal is to shrink the time-to-value (and keystrokes).  Basically, you'll want to execute them in order starting with the scripts in the root and then moving on to executing the ones in the `bin` directory.  You'll want to follow the instructions in the [Prepare your environment file](#prepare-your-environment-file) section first.
 
 ## Create your jumpbox from your local machine or Google Cloud Shell
+
+> Feel free to replace the `--zone` values below with any other [supported](https://cloud.google.com/compute/docs/regions-zones/) zone on Google Cloud.
 
 ```bash
 GCP_PROJECT_ID=<TARGET_GCP_PROJECT_ID>
@@ -447,7 +455,7 @@ gcloud compute instances delete "ops-manager-vm" --zone "us-west1-a" --quiet
 
 ### Unwind the remaining PCF infrastructure
 
-If you're targetting PAS ...
+If you're targeting PAS ...
 
 ```bash
 cd ~/terraforming/terraforming-pas
@@ -461,7 +469,7 @@ cd ~/terraforming/terraforming-pks
 terraform destroy --auto-approve
 ```
 
-### Unintstall Concourse
+### Uninstall Concourse
 
 ```bash
 GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
