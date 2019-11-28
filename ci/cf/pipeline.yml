@@ -41,7 +41,7 @@ resources:
   source:
     api_token: ((pivnet-token))
     product_slug: platform-automation
-    product_version: 2\.(.*)
+    product_version: 4\.1\.(.*)
     sort_by: semver
 
 - name: opsman-product
