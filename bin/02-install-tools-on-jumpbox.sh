@@ -27,7 +27,7 @@ wget -O om https://github.com/pivotal-cf/om/releases/download/${OM_VERSION}/om-l
   chmod +x om && \
   sudo mv om /usr/local/bin/
 
-PIVNET_VERSION=0.0.74
+PIVNET_VERSION=0.0.75
 wget -O pivnet https://github.com/pivotal-cf/pivnet-cli/releases/download/v${PIVNET_VERSION}/pivnet-linux-amd64-${PIVNET_VERSION} && \
   chmod +x pivnet && \
   sudo mv pivnet /usr/local/bin/
