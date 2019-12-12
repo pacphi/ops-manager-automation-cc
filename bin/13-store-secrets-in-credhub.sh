@@ -2,6 +2,9 @@
 
 set -e
 
+source ~/.env
+credhub login
+
 GCP_PROJECT_ID="$(gcloud config get-value core/project)"
 OPSMAN_PUBLIC_IP="$(dig +short pcf.${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME})"
 

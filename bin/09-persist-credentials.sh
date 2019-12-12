@@ -1,6 +1,8 @@
 #!/bin/bash
 
-NAMESPACE=$(uuidgen)
+source ~/.env
+
+NAMESPACE="${CC_SUFFIX}"
 INFO=$(GOOGLE_APPLICATION_CREDENTIALS=~/gcp_credentials.json \
   control-tower info \
     --namespace "${NAMESPACE}" \
