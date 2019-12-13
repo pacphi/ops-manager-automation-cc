@@ -27,7 +27,7 @@ wget -O om https://github.com/pivotal-cf/om/releases/download/${OM_VERSION}/om-l
   chmod +x om && \
   sudo mv om /usr/local/bin/
 
-PIVNET_VERSION=0.0.75
+PIVNET_VERSION=0.0.76
 wget -O pivnet https://github.com/pivotal-cf/pivnet-cli/releases/download/v${PIVNET_VERSION}/pivnet-linux-amd64-${PIVNET_VERSION} && \
   chmod +x pivnet && \
   sudo mv pivnet /usr/local/bin/
@@ -37,7 +37,7 @@ wget -O bosh https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_VERSION
   chmod +x bosh && \
   sudo mv bosh /usr/local/bin/
 
-CREDHUB_VERSION=2.6.1
+CREDHUB_VERSION=2.6.2
 wget -O credhub.tgz https://github.com/cloudfoundry-incubator/credhub-cli/releases/download/${CREDHUB_VERSION}/credhub-linux-${CREDHUB_VERSION}.tgz && \
   tar -xvf credhub.tgz && \
   sudo mv credhub /usr/local/bin && \
