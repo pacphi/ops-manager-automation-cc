@@ -11,13 +11,13 @@ sudo gem install cf-uaac
 
 cd ~
 
-FLY_VERSION=5.6.0
+FLY_VERSION=5.8.0
 wget -O fly.tgz https://github.com/concourse/concourse/releases/download/v${FLY_VERSION}/fly-${FLY_VERSION}-linux-amd64.tgz && \
   tar -xvf fly.tgz && \
   sudo mv fly /usr/local/bin && \
   rm fly.tgz
 
-CT_VERSION=0.8.3
+CT_VERSION=0.9.0
 wget -O control-tower https://github.com/EngineerBetter/control-tower/releases/download/${CT_VERSION}/control-tower-linux-amd64 && \
   chmod +x control-tower && \
   sudo mv control-tower /usr/local/bin/
